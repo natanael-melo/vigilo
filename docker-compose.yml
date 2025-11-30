@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  vigilo:
+    image: vigilo:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vigilo-agent
+    restart: unless-stopped
+    
+    # Variáveis de Ambiente (Configure aqui ou use arquivo .env)
+    environment:
+      # Evolution API (WhatsApp)
+      - EVOLUTION_URL=${EVOLUTION_URL}
+      - EVOLUTION_TOKEN=${EVOLUTION_TOKEN}
+      - EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE}
+      - NOTIFY_NUMBER=${NOTIFY_NUMBER}
+      
+      # n8n Webhook
+      - N8N_HEARTBEAT_URL=${N8N_HEARTBEAT_URL}
+      
+      # Configurações de Tempo
+      - CHECK_INTERVAL=${CHECK_INTERVAL:-60}
+      - REPORT_HOURS=${REPORT_HOURS:-4}
+      - ALERT_COOLDOWN=${ALERT_COOLDOWN:-1800}
+      
+      # Timezone
+      - TZ=${TZ:-America/Sao_Paulo}
+      
+      # Containers para Monitorar (separados por vírgula)
+      - WATCH_CONTAINERS=${WATCH_CONTAINERS:-}
+      
+      # Limiares de Alerta (opcional)
+      - CPU_THRESHOLD=${CPU_THRESHOLD:-85.0}
+      - RAM_THRESHOLD=${RAM_THRESHOLD:-90.0}
+      - DISK_THRESHOLD=${DISK_THRESHOLD:-90.0}
+      
+      # Log Level
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    
+    # Volumes
+    volumes:
+      # Docker Socket (Read-Only) - ESSENCIAL para monitoramento
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+      # Timezone (sincroniza com host)
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    
+    # Network mode para ter acesso total ao host
+    network_mode: bridge
+    
+    # Labels para Portainer
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "app.name=vigilo"
+      - "app.description=Lightweight Monitoring Agent"
+      - "app.version=1.0.0"
+    
+    # Logging driver
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Resource limits (opcional - ajuste conforme necessário)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 256M
+    #     reservations:
+    #       cpus: '0.1'
+    #       memory: 128M
+

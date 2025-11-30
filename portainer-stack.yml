@@ -1,0 +1,69 @@
+# ========================================
+# Vigilo - Stack para Portainer
+# ========================================
+# Cole este arquivo em: Portainer > Stacks > Add Stack
+# Preencha as variáveis de ambiente abaixo antes de fazer o deploy
+
+version: '3.8'
+
+services:
+  vigilo:
+    image: vigilo:latest
+    container_name: vigilo-agent
+    restart: unless-stopped
+    
+    # ====================================
+    # CONFIGURAÇÃO - Edite os valores abaixo
+    # ====================================
+    environment:
+      # === EVOLUTION API (WhatsApp) - OBRIGATÓRIO ===
+      - EVOLUTION_URL=https://sua-evolution-api.com
+      - EVOLUTION_TOKEN=seu_token_aqui
+      - EVOLUTION_INSTANCE=nome_da_instancia
+      - NOTIFY_NUMBER=5511999999999
+      
+      # === N8N WEBHOOK - OBRIGATÓRIO ===
+      - N8N_HEARTBEAT_URL=https://seu-n8n.com/webhook/omniwatch
+      
+      # === CONFIGURAÇÕES DE TEMPO (OPCIONAL) ===
+      - CHECK_INTERVAL=60
+      - REPORT_HOURS=4
+      - ALERT_COOLDOWN=1800
+      
+      # === TIMEZONE (OPCIONAL) ===
+      - TZ=America/Sao_Paulo
+      
+      # === CONTAINERS MONITORADOS (OPCIONAL) ===
+      # Separe por vírgula: exemplo "postgres,nginx,redis"
+      - WATCH_CONTAINERS=
+      
+      # === LIMIARES DE ALERTA (OPCIONAL) ===
+      - CPU_THRESHOLD=85.0
+      - RAM_THRESHOLD=90.0
+      - DISK_THRESHOLD=90.0
+      
+      # === LOG LEVEL (OPCIONAL) ===
+      - LOG_LEVEL=INFO
+    
+    volumes:
+      # Docker Socket (ESSENCIAL - NÃO REMOVA)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      
+      # Timezone sincronizada com host
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    
+    network_mode: bridge
+    
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "app.name=vigilo"
+      - "app.description=Lightweight Monitoring Agent"
+      - "app.version=1.0.0"
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+

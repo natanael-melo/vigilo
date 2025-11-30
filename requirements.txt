@@ -1,0 +1,17 @@
+# Vigilo - Dependências Python
+
+# Monitoramento de Sistema
+psutil
+
+# Docker SDK
+docker
+
+# HTTP Requests
+requests
+urllib3
+# Gerenciamento de Variáveis de Ambiente
+python-dotenv
+
+# Certificados SSL
+certifi
+
